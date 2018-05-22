@@ -135,114 +135,112 @@ def rip(config):
 
     log.debug("{} DVD(s) found".format(len(dvds)))
 
-    if len(dvds) > 0:
-        # Best naming convention ever
-        for dvd in dvds:
-            mkv_api.set_title(dvd["discTitle"])
-            mkv_api.set_index(dvd["discIndex"])
-
-            disc_title = mkv_api.get_title()
-            
-            if not config['force_db']:
-                disc_type = mkv_api.get_type()
-            else:
-                disc_type = config['force_db']
-
-            disc_path = os.path.join(mkv_save_path, disc_title)
-            if not os.path.exists(disc_path):
-                os.makedirs(disc_path)
-
-                mkv_api.get_disc_info()
-
-                saveFiles = mkv_api.get_savefiles()
-
-                if len(saveFiles) != 0:
-                    filebot = config['filebot']['enable']
-
-                    for dvdTitle in saveFiles:
-
-                        dbvideo = database.insert_video(
-                            disc_title,
-                            disc_path,
-                            disc_type,
-                            dvdTitle['index'],
-                            filebot
-                        )
-
-                        database.insert_history(
-                            dbvideo,
-                            "Video added to database"
-                        )
-
-                        database.update_video(
-                            dbvideo,
-                            3,
-                            dvdTitle['title']
-                        )
-
-                        log.debug("Attempting to rip {} from {}".format(
-                            dvdTitle['title'],
-                            disc_title
-                        ))
-
-                        with stopwatch.StopWatch() as t:
-                            database.insert_history(
-                                dbvideo,
-                                "Video submitted to MakeMKV"
-                            )
-                            status = mkv_api.rip_disc(
-                                mkv_save_path, dvdTitle['index'])
-
-                            # Master_and_Commander_De_l'autre_côté_du_monde_t00.mkv become
-                            # Master_and_Commander_De_l_autre_cote_du_monde_t00.mkv
-                            log.debug('Rename {} to {}'.format(
-                                os.path.join(dbvideo.path, dvdTitle['title']),
-                                os.path.join(dbvideo.path, dvdTitle['rename_title'])
-                            ))
-                            os.rename(
-                                os.path.join(dbvideo.path, dvdTitle['title']),
-                                os.path.join(dbvideo.path, dvdTitle['rename_title'])
-                            )
-
-                        if status:
-                            log.info("It took {} minute(s) to complete the ripping of {} from {}".format(
-                                t.minutes,
-                                dvdTitle['title'],
-                                disc_title
-                            ))
-
-                            database.update_video(dbvideo, 4)
-
-                            if 'rip' in config['notification']['notify_on_state']:
-                                notify.rip_complete(dbvideo)
-
-                        else:
-                            database.update_video(dbvideo, 2)
-
-                            database.insert_history(
-                                dbvideo,
-                                "MakeMKV failed to rip video"
-                            )
-                            notify.rip_fail(dbvideo)
-
-                            log.info(
-                                "MakeMKV did not did not complete successfully")
-                            log.info("See log for more details")
-
-                    if config['makemkv']['eject']:
-                        eject(config, dvd['location'])
-
-                else:
-                    log.info("No video titles found")
-                    log.info(
-                        "Try decreasing 'minLength' in the config and try again")
-
-            else:
-                log.info("Video folder {} already exists".format(disc_title))
-
-    else:
+    if len(dvds) == 0:
         log.info("Could not find any DVDs in drive list")
+        return
 
+    # Best naming convention ever
+    for dvd in dvds:
+        mkv_api.set_title(dvd["discTitle"])
+        mkv_api.set_index(dvd["discIndex"])
+
+        disc_title = mkv_api.get_title()
+        
+        if not config['force_db']:
+            disc_type = mkv_api.get_type()
+        else:
+            disc_type = config['force_db']
+
+        disc_path = os.path.join(mkv_save_path, disc_title)
+        if os.path.exists(disc_path):
+            log.info("Video folder {} already exists".format(disc_title))
+            continue
+
+        os.makedirs(disc_path)
+
+        mkv_api.get_disc_info()
+
+        saveFiles = mkv_api.get_savefiles()
+
+        if len(saveFiles) == 0:
+            log.info("No video titles found")
+            log.info("Try decreasing 'minLength' in the config and try again")
+            continue
+
+        filebot = config['filebot']['enable']
+
+        for dvdTitle in saveFiles:
+
+            dbvideo = database.insert_video(
+                disc_title,
+                disc_path,
+                disc_type,
+                dvdTitle['index'],
+                filebot
+            )
+
+            database.insert_history(
+                dbvideo,
+                "Video added to database"
+            )
+
+            database.update_video(
+                dbvideo,
+                3,
+                dvdTitle['title']
+            )
+
+            log.debug("Attempting to rip {} from {}".format(
+                dvdTitle['title'],
+                disc_title
+            ))
+
+            with stopwatch.StopWatch() as t:
+                database.insert_history(
+                    dbvideo,
+                    "Video submitted to MakeMKV"
+                )
+                status = mkv_api.rip_disc(
+                    mkv_save_path, dvdTitle['index'])
+
+                # Master_and_Commander_De_l'autre_côté_du_monde_t00.mkv become
+                # Master_and_Commander_De_l_autre_cote_du_monde_t00.mkv
+                log.debug('Rename {} to {}'.format(
+                    os.path.join(dbvideo.path, dvdTitle['title']),
+                    os.path.join(dbvideo.path, dvdTitle['rename_title'])
+                ))
+                os.rename(
+                    os.path.join(dbvideo.path, dvdTitle['title']),
+                    os.path.join(dbvideo.path, dvdTitle['rename_title'])
+                )
+
+            if status:
+                log.info("It took {} minute(s) to complete the ripping of {} from {}".format(
+                    t.minutes,
+                    dvdTitle['title'],
+                    disc_title
+                ))
+
+                database.update_video(dbvideo, 4)
+
+                if 'rip' in config['notification']['notify_on_state']:
+                    notify.rip_complete(dbvideo)
+
+            else:
+                database.update_video(dbvideo, 2)
+
+                database.insert_history(
+                    dbvideo,
+                    "MakeMKV failed to rip video"
+                )
+                notify.rip_fail(dbvideo)
+
+                log.info(
+                    "MakeMKV did not did not complete successfully")
+                log.info("See log for more details")
+
+        if config['makemkv']['eject']:
+            eject(config, dvd['location'])
 
 def skip_compress(config):
     """

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Install Script Version 1.0
 # This script is designed to install Autorippr for Ubuntu 16.04 LTS
 # All required dependancies and packages will be installed
@@ -12,6 +14,8 @@
 # --Handbrake-CLI
 # --Filebot
 # --Autorippr
+
+MAKEMKV_VERSION=1.10.2
 
 # Change to execution directory
 cd ~
@@ -34,16 +38,16 @@ sudo python get-pip.py
 sudo apt-get install build-essential pkg-config libc6-dev libssl-dev libexpat1-dev libavcodec-dev libgl1-mesa-dev libqt4-dev
 
 #Install MakeMKV
-wget http://www.makemkv.com/download/makemkv-bin-1.10.2.tar.gz
-wget http://www.makemkv.com/download/makemkv-oss-1.10.2.tar.gz
-tar -zxmf makemkv-oss-1.10.2.tar.gz
-tar -zxmf makemkv-bin-1.10.2.tar.gz
-cd makemkv-oss-1.10.2
+wget http://www.makemkv.com/download/makemkv-bin-${MAKEMKV_VERSION}.tar.gz
+wget http://www.makemkv.com/download/makemkv-oss-${MAKEMKV_VERSION}.tar.gz
+tar -zxmf makemkv-oss-${MAKEMKV_VERSION}.tar.gz
+tar -zxmf makemkv-bin-${MAKEMKV_VERSION}.tar.gz
+cd makemkv-oss-${MAKEMKV_VERSION}
 ./configure
 make
 sudo make install
 cd ..
-cd makemkv-bin-1.10.2
+cd makemkv-bin-${MAKEMKV_VERSION}
 make
 sudo make install
 
@@ -68,7 +72,7 @@ fi
 sudo dpkg --force-depends -i filebot-*.deb && rm filebot-*.deb
 
 # Install Python Required Packages
-sudo pip install tendo pyyaml peewee pushover
+sudo pip install tendo pyyaml peewee pushover pymediainfo 
 
 # Install Autorippr
 cd ~

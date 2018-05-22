@@ -32,6 +32,7 @@ class Compression(object):
                 The compression instance
         """
         self.log = logger.Logger("Compression", config['debug'], config['silent'])
+        self.config = config['compress']
         self.method = self.which_method(config)
         self.invid = ""
 
@@ -40,8 +41,8 @@ class Compression(object):
             return ffmpeg.FFmpeg(
                 config['debug'],
                 config['compress']['compressionPath'],
-                config['silent'],
-                config['compress']['format']
+                config['compress']['format'],
+                config['silent']
             )
         else:
             return handbrake.HandBrake(
@@ -52,7 +53,7 @@ class Compression(object):
             )
 
     def compress(self, **args):
-        self.log.debug('FFmpeg args: {}'.format(args))
+        self.log.debug('compression[{}] args: {}'.format(self.config['type'], args))
         return self.method.compress(**args)
 
     def check_exists(self, dbvideo):

@@ -21,7 +21,7 @@ import logger
 
 class FFmpeg(object):
 
-    def __init__(self, debug, compressionpath, silent, vformat):
+    def __init__(self, debug, compressionpath, vformat, silent):
         self.log = logger.Logger("FFmpeg", debug, silent)
         self.compressionPath = compressionpath
         self.vformat = vformat
@@ -55,17 +55,11 @@ class FFmpeg(object):
             vidname = "%s.%s" % (dbvideo.vidname, self.vformat)
 
         invid = "%s/%s" % (dbvideo.path, dbvideo.filename)
-        outvid = os.path.join(self.compressionPath, os.path.basename(dbvideo.path), vidname)
-        destination_folder = os.path.dirname(outvid)
+        outvid = "%s/%s" % (dbvideo.path, vidname)
 
-        if not os.path.exists(destination_folder):
-            self.log.info('Destination folder does not exists, creating: {}'.format(
-                destination_folder
-            ))
-            os.makedirs(destination_folder)
-
-        command = 'nice -n {0} ffmpeg -i "{1}" {2} "{3}"'.format(
+        command = 'nice -n {0} {1}ffmpeg -i "{2}" {3} "{4}"'.format(
             nice,
+            self.compressionPath,
             invid,
             ' '.join(args),
             outvid

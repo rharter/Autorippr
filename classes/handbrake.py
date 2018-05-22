@@ -104,4 +104,5 @@ class HandBrake(object):
 
             return True
         else:
+            database.update_video(dbvideo, 4)
             return False
