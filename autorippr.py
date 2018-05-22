@@ -127,7 +127,7 @@ def rip(config):
 
     mkv_save_path = os.path.join(config['workDir'], 'raw')
 
-    log.debug("Ripping initialised")
+    log.info("Ripping initialised")
     mkv_api = makemkv.MakeMKV(config)
 
     log.debug("Checking for DVDs")
@@ -190,10 +190,13 @@ def rip(config):
                 dvdTitle['title']
             )
 
-            log.debug("Attempting to rip {} from {}".format(
+            log.info("Attempting to rip {} from {}".format(
                 dvdTitle['title'],
                 disc_title
             ))
+
+            if 'rip' in config['notification']['notify_on_state']:
+                notify.rip_started(dbvideo)
 
             with stopwatch.StopWatch() as t:
                 database.insert_history(
@@ -224,7 +227,7 @@ def rip(config):
                 database.update_video(dbvideo, 4)
 
                 if 'rip' in config['notification']['notify_on_state']:
-                    notify.rip_complete(dbvideo)
+                    notify.rip_complete(dbvideo, t.minutes)
 
             else:
                 database.update_video(dbvideo, 2)

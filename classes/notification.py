@@ -40,9 +40,12 @@ class Notification(object):
                     self.log.error(
                         "Error loading notification class: {}".format(method))
 
-    def rip_complete(self, dbvideo):
+    def rip_started(self, dbvideo):
+        status = "Rip started: {}".format(dbvideo.vidname)
+        self._send(status)
 
-        status = 'Rip of %s complete' % dbvideo.vidname
+    def rip_complete(self, dbvideo, time):
+        status = "Rip of {} complete in {} minutes".format(dbvideo.vidname, time)
         self._send(status)
 
     def rip_fail(self, dbvideo):
