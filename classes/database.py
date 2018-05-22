@@ -18,9 +18,12 @@ from datetime import datetime
 from peewee import *
 import utils
 
-DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-database = SqliteDatabase('%s/autorippr.sqlite' % DIR, **{})
+# The database should be initialized from runtime config
+database = SqliteDatabase(None)
 
+def set_path(path):
+    database.init(path)
+    db_integrity_check()
 
 class BaseModel(Model):
 
@@ -96,7 +99,6 @@ def create_history_types():
         for hID, hType in historytypes:
             Historytypes.create(historytypeid=hID, historytype=hType)
 
-
 def create_status_types():
     statustypes = [
         [1, 'Added'],
@@ -128,7 +130,6 @@ def next_video_to_filebot():
     videos = Videos.select().where((Videos.statusid == 6) & (
         Videos.filename != "None") & (Videos.filebot == 1))
     return videos
-
 
 def search_video_name(invid):
     vidqty = Videos.select().where(Videos.filename.startswith(invid)).count()
@@ -168,7 +169,7 @@ def update_video(vidobj, statusid, filename=None):
 
     vidobj.save()
 
-
+# Must be called after database is initialized
 def db_integrity_check():
     # Stuff
     create_tables()
@@ -176,5 +177,3 @@ def db_integrity_check():
     # Things
     create_history_types()
     create_status_types()
-
-db_integrity_check()

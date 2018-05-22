@@ -125,7 +125,7 @@ def rip(config):
     """
     log = logger.Logger("Rip", config['debug'], config['silent'])
 
-    mkv_save_path = config['makemkv']['savePath']
+    mkv_save_path = os.path.join(config['workDir'], 'raw')
 
     log.debug("Ripping initialised")
     mkv_api = makemkv.MakeMKV(config)
@@ -316,7 +316,7 @@ def compress(config):
                 comp.cleanup()
 
             else:
-                database.update_video(dbvideo, 5)
+                database.update_video(dbvideo, 4)
 
                 database.insert_history(dbvideo, "Compression failed", 4)
 
@@ -368,11 +368,11 @@ def extras(config):
         database.update_video(dbvideo, 7)
 
         movePath = dbvideo.path
-        if config['filebot']['move']:
+        if config['move']:
             if dbvideo.vidtype == "tv":
-                movePath = config['filebot']['tvPath']
+                movePath = config['tvPath']
             else:
-                movePath = config['filebot']['moviePath']
+                movePath = config['moviePath']
 
         status = fb.rename(dbvideo, movePath)
 
@@ -442,6 +442,13 @@ if __name__ == '__main__':
         raise ValueError('{} is not a valid DB.'.format(arguments['--force_db']))
     else:
         config['force_db'] = arguments['--force_db']
+
+    workDir = config['workDir']
+    if not os.path.exists(workDir):
+        os.makedirs(workDir)
+
+    logger.workDir = workDir
+    database.set_path(os.path.join(workDir, "autorippr.sqlite"))
         
     notify = notification.Notification(
         config, config['debug'], config['silent'])
