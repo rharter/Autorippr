@@ -81,10 +81,7 @@ class FileBot(object):
                 if "Processed" in line:
                     checks += 1
 
-                if "Done" in line:
-                    checks += 1
-
-        if checks >= 3 and renamedvideo:
+        if checks >= 2 and renamedvideo:
             return [True, renamedvideo]
         else:
             return [False]

@@ -53,9 +53,9 @@ class Notification(object):
         status = 'Rip of %s failed' % dbvideo.vidname
         self._send(status)
 
-    def compress_complete(self, dbvideo):
+    def compress_complete(self, dbvideo, time):
 
-        status = 'Compress of %s complete' % dbvideo.vidname
+        status = "Compress of {} complete in {} minutes".format(dbvideo.vidname, time)
         self._send(status)
 
     def compress_fail(self, dbvideo):

@@ -314,7 +314,7 @@ def compress(config):
                 database.update_video(dbvideo, 6)
 
                 if 'compress' in config['notification']['notify_on_state']:
-                    notify.compress_complete(dbvideo)
+                    notify.compress_complete(dbvideo, t.minutes)
 
                 comp.cleanup()
 
@@ -428,6 +428,7 @@ def extras(config):
 
         else:
             log.info("Rename failed")
+            database.update_video(dbvideo, 6)
 
     else:
         log.info("No videos ready for filebot")
