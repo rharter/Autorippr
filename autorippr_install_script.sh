@@ -101,6 +101,8 @@ fi
 # Verification Test
 python autorippr.py --test
 
+cd "${START_DIR}"
+
 # Completion Message
 echo " "
 echo "###################################################"
