@@ -15,10 +15,12 @@ set -x
 # --Filebot
 # --Autorippr
 
+START_DIR=$(pwd)
 MAKEMKV_VERSION=1.10.2
 
 # Change to execution directory
-cd ~
+mkdir /tmp/autorippr-installer
+cd /tmp/autorippr-installer
 
 # Ubuntu 16.04 Error fix for installing packages
 sudo apt-get purge runit
@@ -50,6 +52,7 @@ cd ..
 cd makemkv-bin-${MAKEMKV_VERSION}
 make
 sudo make install
+cd ..
 
 # Install Handbrake CLI
 sudo apt-get install handbrake-cli
@@ -74,12 +77,26 @@ sudo dpkg --force-depends -i filebot-*.deb && rm filebot-*.deb
 # Install Python Required Packages
 sudo pip install tendo pyyaml peewee pushover pymediainfo 
 
+AUTORIPPR_HOME=/opt/autorippr
+read -p "Select the Autorippr install location [$AUTORIPPR_HOME]: " -r
+if [[ -z "${REPLY// }" ]];then 
+	AUTORIPPR_HOME=${REPLY}
+fi
+
 # Install Autorippr
-cd ~
-git clone https://github.com/JasonMillward/Autorippr.git
-cd Autorippr
+sudo mkdir -p "$AUTORIPPR_HOME"
+git clone https://github.com/JasonMillward/Autorippr.git "$AUTORIPPR_HOME"
+cd "$AUTORIPPR_HOME"
 git checkout
 cp settings.example.cfg settings.cfg
+
+read -p "Would you like Autorippr to automatically run when a disc is inserted? (N/y)" -r
+echo
+if [[ $REPLY =~ ^[Yy]]];then
+  sudo ln -s "$AUTORIPPR_HOME/51-automedia.rules" /lib/udev/rules.d/
+  sudo cp "$AUTORIPPR_HOME/autorippr@.service" /etc/systemd/system/
+  sudo sed -i "s|\"\$AUTORIPPR_HOME\"|${AUTORIPPR_HOME}|g" /etc/systemd/system/autorippr@.service
+fi
 
 # Verification Test
 python autorippr.py --test
