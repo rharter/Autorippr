@@ -23,11 +23,11 @@ mkdir /tmp/autorippr-installer
 cd /tmp/autorippr-installer
 
 # Ubuntu 16.04 Error fix for installing packages
-sudo apt-get purge runit
-sudo apt-get purge git-all
-sudo apt-get purge git
-sudo apt-get autoremove
-sudo apt update
+# sudo apt-get purge runit
+# sudo apt-get purge git-all
+# sudo apt-get purge git
+# sudo apt-get autoremove
+# sudo apt update
 
 # Install Git
 sudo apt install git 
