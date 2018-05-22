@@ -1,0 +1,9 @@
+[Unit]
+Description=AutoRippr
+
+[Service]
+Type=oneshot
+ExecStart=python /opt/autorippr/autorippr.py --all
+
+[Install]
+WantedBy=multi-user.target

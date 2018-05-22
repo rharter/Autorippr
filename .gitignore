@@ -36,5 +36,7 @@ settings.cfg
 # Log files
 *.log
 
+# Backup files
+._*
 
 .idea

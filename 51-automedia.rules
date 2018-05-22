@@ -1,0 +1,3 @@
+# ID_CDROM_MEDIA_BD = Bluray
+# ID_CDROM_MEDIA_DVD = DVD
+ACTION=="change", SUBSYSTEM=="block", TAG+="systemd", KERNEL=="sr[0-9]*|vdisk*|xvd*", ENV{DEVTYPE}=="disk", RUN+="/bin/systemctl start autorippr@%k.service"
