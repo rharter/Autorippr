@@ -3,7 +3,7 @@ Description=AutoRippr
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python "$AUTORIPPR_HOME"/autorippr.py --all
+ExecStart="$AUTORIPPR_HOME"/autorippr_wrapper.sh
 
 [Install]
 WantedBy=multi-user.target
